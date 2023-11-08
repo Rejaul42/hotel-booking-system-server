@@ -3,7 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
-const port = process.env.PORT|| 5000;
+const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors())
@@ -15,61 +15,72 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
 });
 
 async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    const roomsCollection = client.db('hotelBooking').collection('Rooms');
-    const bookCollection = client.db('bookedRoom').collection('Booked');
+    try {
+        // Connect the client to the server	(optional starting in v4.7)
+        await client.connect();
+        const roomsCollection = client.db('hotelBooking').collection('Rooms');
+        const bookCollection = client.db('bookedRoom').collection('Booked');
 
-    // get room data
-    app.get('/rooms', async(req, res) =>{
-        const cursor = roomsCollection.find()
-        const result = await cursor.toArray();
-        res.send(result)
-    })
+        // get room data
+        app.get('/rooms', async (req, res) => {
+            const cursor = roomsCollection.find()
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
-    // get one data from database
-    app.get("/rooms/:id", async (req, res) => {
-        const id = req.params.id;
-        console.log(id)
-        const query = { _id: new ObjectId(id) }
-        const result = await roomsCollection.findOne(query)
-        res.send(result)
-    })
+        // get one data from database
+        app.get("/rooms/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await roomsCollection.findOne(query)
+            res.send(result)
+        })
 
-    app.post("/bookedCart", async (req, res) => {
-        const newBooked = req.body;
-        console.log(newBooked)
-        // database e send
-        const result = await bookCollection.insertOne(newBooked)
-        res.send(result)
-    })
+        app.post("/booked", async (req, res) => {
+            const newBooked = req.body;
+            console.log(newBooked)
+            // database e send
+            const result = await bookCollection.insertOne(newBooked)
+            res.send(result)
+        })
+
+        // get booking data
+        app.get('/booked', async (req, res) => {
+            let query = {}
+            if(req.query?.email) {
+                query= {email: req.query.email}
+            }
+            const cursor = bookCollection.find();
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
 
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
+    }
 }
 run().catch(console.dir);
 
 
 
 // EXPRESS
-app.get('/', (req, res) =>{
+app.get('/', (req, res) => {
     res.send('Hotel is booking')
 })
-app.listen(port, () =>{
+app.listen(port, () => {
     console.log(`Hotel booking server is running on port ${port}`)
 })
