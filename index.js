@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
@@ -29,6 +30,11 @@ async function run() {
         const roomsCollection = client.db('hotelBooking').collection('Rooms');
         const bookCollection = client.db('bookedRoom').collection('Booked');
 
+        // auth related api
+        app.post('/jwt', logger, async (req, res) => {
+            const user = req.body;
+            console.log(user);
+        })
         // get room data
         app.get('/rooms', async (req, res) => {
             const cursor = roomsCollection.find()
@@ -56,8 +62,8 @@ async function run() {
         // get booking data
         app.get('/booked', async (req, res) => {
             let query = {}
-            if(req.query?.email) {
-                query= {email: req.query.email}
+            if (req.query?.email) {
+                query = { email: req.query.email }
             }
             const cursor = bookCollection.find();
             const result = await cursor.toArray();
