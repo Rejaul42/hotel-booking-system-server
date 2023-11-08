@@ -86,8 +86,8 @@ async function run() {
             const updateBook = req.body;
             const product = {
                 $set: {
-                    name: updateBook.name,
-                    brandName: updateBook.brandName,
+                    checkIn: updateBook.checkIn,
+                    checkOut: updateBook.checkOut,
                 }
             }
             const result = await bookCollection.updateOne(filter, product, options);
