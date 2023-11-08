@@ -27,6 +27,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const roomsCollection = client.db('hotelBooking').collection('Rooms');
+    const bookCollection = client.db('bookedRoom').collection('Booked');
 
     // get room data
     app.get('/rooms', async(req, res) =>{
@@ -43,6 +44,15 @@ async function run() {
         const result = await roomsCollection.findOne(query)
         res.send(result)
     })
+
+    app.post("/bookedCart", async (req, res) => {
+        const newBooked = req.body;
+        console.log(newBooked)
+        // database e send
+        const result = await bookCollection.insertOne(newBooked)
+        res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
