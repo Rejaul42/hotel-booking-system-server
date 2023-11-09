@@ -9,7 +9,9 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-    origin: ['http://localhost:5174'],
+    origin: [
+        "https://hotel-booking-system-3bf81.web.app/"
+    ],
     credentials: true
 }))
 app.use(express.json());
@@ -65,10 +67,18 @@ async function run() {
             res
             .cookie('token', token, {
                 httpOnly: true,
-                secure: false
+                secure: true,
+                sameSite: 'none'
             })
             .send({ success: true })
         })
+
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+            console.log('logging out', user);
+            res.clearCookie('token', { maxAge: 0 }).send({ success: true })
+        })
+
         // get room data
         app.get('/rooms', async (req, res) => {
             const cursor = roomsCollection.find()
